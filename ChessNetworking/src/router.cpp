@@ -21,6 +21,11 @@ namespace Chess{
     Connection myConnection(&io_context, package);
     io_context.run();
   }
-
+  std::string* Router::getAddress() {
+    return &this->address.ip;
+  }
+  short* Router::getPort() {
+    return &this->address.port;
+  }
 };
 

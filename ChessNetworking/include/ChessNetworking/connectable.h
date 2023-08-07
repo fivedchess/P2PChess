@@ -2,6 +2,7 @@
 namespace Chess {
   class Address;
   struct Connectabble {
-    Address* getAddress();
+    virtual std::string* getAddress() = 0;
+    virtual short* getPort() = 0;
   };
 };

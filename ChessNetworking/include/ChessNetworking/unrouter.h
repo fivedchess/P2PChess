@@ -6,7 +6,8 @@ namespace Chess{
     protected:
       Address address;
     public:
-      Address* getAddress();
+      std::string* getAddress() override;
+      short* getPort() override;
       unRouter(Address address);
   };
 };

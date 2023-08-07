@@ -12,11 +12,12 @@ namespace Chess {
         boost::asio::ip::tcp::endpoint server_endpoint;
         boost::asio::ip::tcp::acceptor acceptor;
         void send(Package& package);
-        void connectTo(Router router);
-        void connectToAll(Router router);
+        void connectTo(unRouter router);
         void do_accept();
         unRouter* to_unRouter();
       public:
+        std::string* getAddress() override;
+        short* getPort() override;
         void run();
         Router(Address address);
     };
