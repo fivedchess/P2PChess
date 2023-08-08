@@ -5,7 +5,7 @@ namespace Chess {
   class Socks5Connection {
     protected:
       ProxyServer& proxy;
-      Connectabble& router;
+      Connectable& router;
       //Boost::asio socket;
       boost::asio::ip::tcp::socket socket;
       //Socks5 Authorization request;
@@ -25,7 +25,7 @@ namespace Chess {
       //Connect Handler;
       virtual void connect_handler();
     public:
-      Socks5Connection(boost::asio::io_context& io_context, ProxyServer& proxy, Connectabble& router);
+      Socks5Connection(boost::asio::io_context& io_context, ProxyServer& proxy, Connectable& router);
       void run();
   };
 };

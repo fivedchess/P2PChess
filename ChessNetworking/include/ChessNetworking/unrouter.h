@@ -2,7 +2,7 @@
 #include <ChessNetworking/address.h>
 #include <ChessNetworking/connectable.h>
 namespace Chess{
-  class unRouter : public Connectabble{
+  class unRouter : public Connectable{
     protected:
       Address address;
     public:

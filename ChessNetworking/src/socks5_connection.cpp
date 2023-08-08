@@ -2,7 +2,7 @@
 #include <ChessNetworking/proxy_server.h>
 #include <ChessNetworking/connectable.h>
 namespace Chess {
-  Socks5Connection::Socks5Connection(boost::asio::io_context& io_context, ProxyServer& proxy, Connectabble& router) : socket(boost::asio::ip::tcp::socket(io_context)), proxy(proxy), router(router) {
+  Socks5Connection::Socks5Connection(boost::asio::io_context& io_context, ProxyServer& proxy, Connectable& router) : socket(boost::asio::ip::tcp::socket(io_context)), proxy(proxy), router(router) {
   }
   void Socks5Connection::proxy_connect() {
     this->socket.async_connect(this->proxy.endpoint, [&](const boost::system::error_code& error){

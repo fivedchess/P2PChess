@@ -2,7 +2,7 @@
 #include <ChessNetworking/address.h>
 #include <ChessNetworking/connectable.h>
 namespace Chess {
-  class ProxyServer : public Connectabble {
+  class ProxyServer : public Connectable {
     protected:
       Address address;
     public:
