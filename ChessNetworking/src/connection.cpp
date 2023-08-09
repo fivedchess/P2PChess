@@ -8,17 +8,23 @@ namespace Chess {
   void Connection::run() {
     auto self(shared_from_this());
     boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(*package.to->getAddress()), *package.to->getPort());
-    (*package.data)["From"] = *package.from->getAddress() + ":" + std::to_string(*package.from->getPort());
-    (*package.data)["To"] = *package.to->getAddress() + ":" + std::to_string(*package.to->getPort());
-    msgpack::pack(msgpack, (*package.data));
+    (*this->package.data)["From"] = *this->package.from->getAddress() + ":" + std::to_string(*this->package.from->getPort());
+    (*this->package.data)["To"] = *this->package.to->getAddress() + ":" + std::to_string(*this->package.to->getPort());
+    msgpack::pack(this->msgpack, (*this->package.data));
     socket.async_connect(endpoint, [this, self](boost::system::error_code error) {
       if (!error) {
-        boost::asio::async_write(socket, boost::asio::buffer(msgpack.str()), [this, self](boost::system::error_code error, std::size_t){
-          std::cout << "CONNECTION\n";
-          socket.close();
+        boost::asio::async_write(this->socket, boost::asio::buffer(this->msgpack.str()), [this, self](boost::system::error_code error, std::size_t){
+          if (!error) {
+            std::cout << "CONNECTION\n";
+            this->socket.close();
+          } else {
+            std::cout << error.message() << std::endl;
+            this->socket.close();
+          }
         });
       } else {
         std::cout << error.message() << std::endl;
+        this->socket.close();
       }
     });
   }

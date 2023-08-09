@@ -12,6 +12,7 @@ namespace Chess {
         this->handshake();
       } else {
         std::cout << error.message() << std::endl;
+        this->socket.close();
       }
     });
   }
@@ -25,9 +26,11 @@ namespace Chess {
               this->connect();
             } else {
               std::cout << error.message() << std::endl;
+              this->socket.close();
             }
           } else {
             std::cout << error.message() << std::endl;
+            this->socket.close();
           }
         });
       }
@@ -45,10 +48,12 @@ namespace Chess {
             this->connect_handler();
           } else {
             std::cout << "connect_reply[1] != 0x00" << std::endl;
+            this->socket.close();
           }
         });
       } else {
         std::cout << error.message() << std::endl;
+        this->socket.close();
       }
     });
   }
