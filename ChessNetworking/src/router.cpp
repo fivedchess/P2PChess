@@ -15,7 +15,8 @@ namespace Chess{
     boost::shared_ptr<std::map<std::string, std::string>> Data = boost::make_shared<std::map<std::string, std::string>>();
     (*Data)["Type"] = "Bootstrap";
     Package package(this, new unRouter(Address("127.0.0.1:6002")), Data);
-    Connection myConnection(&io_context, package);
+
+    boost::make_shared<Connection>(std::move(boost::asio::ip::tcp::socket(io_context)), package)->run();
     io_context.run();
   }
   std::string* Router::getAddress() {

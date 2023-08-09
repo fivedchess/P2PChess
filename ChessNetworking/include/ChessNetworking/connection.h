@@ -1,12 +1,13 @@
 #pragma once
 namespace Chess {
   class Package;
-  class Connection{
+  class Connection : public boost::enable_shared_from_this<Connection> {
       protected:
-        boost::asio::io_context* io_context;
         boost::asio::ip::tcp::socket socket;
         std::stringstream msgpack;
+        Package& package;
       public:
-        Connection(boost::asio::io_context* io_context, Package& package);
+        void run();
+        Connection(boost::asio::ip::tcp::socket socket, Package& package);
     };
 };

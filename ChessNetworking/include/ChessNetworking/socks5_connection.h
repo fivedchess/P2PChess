@@ -3,7 +3,7 @@
 #include <ChessNetworking/proxy_server.h>
 namespace Chess {
   class Package;
-  class Socks5Connection {
+  class Socks5Connection : public boost::enable_shared_from_this<Socks5Connection> {
     protected:
       ProxyServer& proxy;
       Connectable* router;
@@ -33,7 +33,7 @@ namespace Chess {
       Connectable* from;
 
     public:
-      Socks5Connection(boost::asio::io_context& io_context, ProxyServer& proxy, Package& package);
+      Socks5Connection(boost::asio::ip::tcp::socket socket, ProxyServer& proxy, Package& package);
       void run();
   };
 };
