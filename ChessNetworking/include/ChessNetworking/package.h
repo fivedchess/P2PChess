@@ -1,13 +1,11 @@
 #pragma once
 namespace Chess {
-  class Address;
-  class Router;
-  class unRouter;
+  class Connectable;
   class Package{
     public:
-      unRouter* from;
-      unRouter* to;
+      Connectable* from;
+      Connectable* to;
       boost::shared_ptr<std::map<std::string, std::string>> data;
-      Package(unRouter* from, unRouter* to, boost::shared_ptr<std::map<std::string, std::string>> data);
+      Package(Connectable* from, Connectable* to, boost::shared_ptr<std::map<std::string, std::string>> data);
   };
 }

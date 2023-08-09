@@ -14,7 +14,6 @@ namespace Chess {
         void send(Package& package);
         void connectTo(unRouter router);
         void do_accept();
-        unRouter* to_unRouter();
       public:
         std::string* getAddress() override;
         short* getPort() override;

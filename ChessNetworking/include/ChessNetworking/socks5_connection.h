@@ -2,10 +2,11 @@
 #include <ChessNetworking/connectable.h>
 #include <ChessNetworking/proxy_server.h>
 namespace Chess {
+  class Package;
   class Socks5Connection {
     protected:
       ProxyServer& proxy;
-      Connectable& router;
+      Connectable* router;
       //Boost::asio socket;
       boost::asio::ip::tcp::socket socket;
       //Socks5 Authorization request;
@@ -24,8 +25,15 @@ namespace Chess {
       void connect();
       //Connect Handler;
       virtual void connect_handler();
+      //Serialised data;
+      std::stringstream msgpack;
+      //Not serialised data;
+      boost::shared_ptr<std::map<std::string, std::string>> data;
+      //From Router;
+      Connectable* from;
+
     public:
-      Socks5Connection(boost::asio::io_context& io_context, ProxyServer& proxy, Connectable& router);
+      Socks5Connection(boost::asio::io_context& io_context, ProxyServer& proxy, Package& package);
       void run();
   };
 };
