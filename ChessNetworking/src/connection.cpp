@@ -13,7 +13,7 @@ namespace Chess {
     msgpack::pack(this->msgpack, (*this->package.data));
     socket.async_connect(endpoint, [this, self](boost::system::error_code error) {
       if (!error) {
-        boost::asio::async_write(this->socket, boost::asio::buffer(this->msgpack.str()), [this, self](boost::system::error_code error, std::size_t){
+        boost::asio::async_write(this->socket, boost::asio::buffer(this->msgpack.str()), boost::asio::transfer_all(), [this, self](boost::system::error_code error, std::size_t){
           if (!error) {
             std::cout << "CONNECTION\n";
             this->socket.close();
