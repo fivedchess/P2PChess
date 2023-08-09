@@ -38,9 +38,11 @@ namespace Chess {
   }
   void Socks5Connection::connect() {
     auto self(shared_from_this());
+    boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v6(), *this->router->getPort());
+    uint16_t networkPort = endpoint.port();
     this->connect_request.insert(this->connect_request.end(), router->getAddress()->begin(), router->getAddress()->end());
-    this->connect_request.push_back(static_cast<uint8_t>((*this->router->getPort()) & 0xFF));
-    this->connect_request.push_back(static_cast<uint8_t>(((*this->router->getPort()) >> 8) & 0xFF));
+    this->connect_request.push_back(static_cast<uint8_t>(networkPort & 0xFF));
+    this->connect_request.push_back(static_cast<uint8_t>(networkPort >> 8) & 0xFF);
     boost::asio::async_write(this->socket, boost::asio::buffer(this->connect_request), boost::asio::transfer_all(), [this, self](const boost::system::error_code& error, std::size_t){
       if (!error) {
         boost::asio::async_read(this->socket, boost::asio::buffer(this->connect_reply), boost::asio::transfer_all(), [this, self](const boost::system::error_code& error, std::size_t){
