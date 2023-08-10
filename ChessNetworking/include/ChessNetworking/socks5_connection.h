@@ -14,7 +14,7 @@ namespace Chess {
       //Socks5 Server Response;
       uint8_t handshake_reply[2];
       //Connect to server Request;
-      std::vector<uint8_t> connect_request;
+      std::vector<uint8_t> connect_request = {0x05, 0x01, 0x00, 0x03};
       //Reply From Socks5 Server for Connect Request;
       uint8_t connect_reply[2];
       //Connect to Socks5 Server;
