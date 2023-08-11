@@ -8,7 +8,7 @@ namespace Chess {
     class Router : public boost::enable_shared_from_this<Chess::Router>, public Connectable{
       protected:
         Address address;
-        boost::asio::io_context io_context;
+        boost::asio::io_context& io_context;
         boost::asio::ip::tcp::endpoint server_endpoint;
         boost::asio::ip::tcp::acceptor acceptor;
         void send(Package& package);
@@ -18,7 +18,7 @@ namespace Chess {
         std::string* getAddress() override;
         short* getPort() override;
         void run();
-        Router(Address address);
+        Router(boost::asio::io_context& io_context, Address address);
     };
 
 };
