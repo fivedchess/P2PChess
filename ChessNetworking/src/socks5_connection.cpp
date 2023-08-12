@@ -2,6 +2,7 @@
 #include <ChessNetworking/proxy_server.h>
 #include <ChessNetworking/connectable.h>
 #include <ChessNetworking/package.h>
+#include <ChessNetworking/router.h>
 namespace Chess {
   Socks5Connection::Socks5Connection(boost::asio::ip::tcp::socket socket, ProxyServer& proxy, Package& package) : socket(std::move(socket)), proxy(proxy), router(package.to), data(package.data), from(package.from) {
   }
@@ -64,7 +65,7 @@ namespace Chess {
     auto self(shared_from_this());
     (*this->data)["From"] = *this->from->getAddress() + ":" + std::to_string(*this->from->getPort());
     (*this->data)["To"] = *this->router->getAddress() + ":" + std::to_string(*this->router->getPort());
-    (*this->data)["Ver"] = "0.001";
+    (*this->data)["Ver"] = Router::version;
     msgpack::pack(msgpack, (*this->data));
     boost::asio::async_write(this->socket, boost::asio::buffer(msgpack.str()), boost::asio::transfer_all(), [this, self](const boost::system::error_code& error, std::size_t){});
   }

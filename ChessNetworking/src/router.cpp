@@ -8,10 +8,19 @@ namespace Chess{
     acceptor.async_accept(
         [this](boost::system::error_code error, boost::asio::ip::tcp::socket socket) {
           if (!error) {
-            boost::make_shared<ServerConnection>(boost::move(socket))->run();
+            boost::make_shared<ServerConnection>(boost::move(socket), this)->run();
           }
           do_accept();
         });
+  }
+  void Router::send(Package& package) {
+    boost::make_shared<Socks5Connection>(boost::move(boost::asio::ip::tcp::socket(io_context)), this->proxy, package)->run();
+  }
+  std::unordered_set<unRouter, unRouter_hash>::iterator Router::connectTo(unRouter router) {
+    return this->connections.emplace(boost::move(router)).first;
+  }
+  std::unordered_set<unRouter, unRouter_hash>::iterator Router::find(unRouter* router) {
+    return this->connections.find(*router);
   }
   Router::Router(boost::asio::io_context& io_context, int argc, const char** argv) :
     address("127.0.0.1:1984"),
@@ -29,6 +38,7 @@ namespace Chess{
       boost::program_options::store(boost::program_options::parse_command_line(argc, argv, m_desc), m_vm);
       boost::program_options::notify(m_vm);
     }
+  const std::string Router::version = "0.001";
   void Router::run(){
     if (m_vm.count("help")){
       std::cout << this->m_desc << std::endl;
@@ -60,7 +70,6 @@ namespace Chess{
     do_accept();
     boost::shared_ptr<std::map<std::string, std::string>> Data = boost::make_shared<std::map<std::string, std::string>>();
     (*Data)["Type"] = "Bootstrap";
-    ProxyServer proxy(Address("127.0.0.1:4447"));
     Package package(this, &this->reseed, Data);
     boost::make_shared<Socks5Connection>(boost::move(boost::asio::ip::tcp::socket(io_context)), proxy, package)->run();
   }

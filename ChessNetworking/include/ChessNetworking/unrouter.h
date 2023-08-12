@@ -3,11 +3,11 @@
 #include <ChessNetworking/connectable.h>
 namespace Chess{
   class unRouter : public Connectable{
-    protected:
-      Address address;
     public:
+      Address address;
       std::string* getAddress() override;
       short* getPort() override;
       unRouter(Address address);
+      bool operator==(const unRouter& another) const;
   };
 };

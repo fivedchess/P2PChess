@@ -8,5 +8,7 @@ namespace Chess {
     return &this->address.port;
   }
   unRouter::unRouter(Address address) : address(address){}
-
+  bool unRouter::operator==(const unRouter& another) const{
+    return (this->address.ip == another.address.ip && this->address.port == another.address.port);
+  }
 };
