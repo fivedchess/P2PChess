@@ -64,6 +64,7 @@ namespace Chess {
     auto self(shared_from_this());
     (*this->data)["From"] = *this->from->getAddress() + ":" + std::to_string(*this->from->getPort());
     (*this->data)["To"] = *this->router->getAddress() + ":" + std::to_string(*this->router->getPort());
+    (*this->data)["Ver"] = "0.001";
     msgpack::pack(msgpack, (*this->data));
     boost::asio::async_write(this->socket, boost::asio::buffer(msgpack.str()), boost::asio::transfer_all(), [this, self](const boost::system::error_code& error, std::size_t){});
   }

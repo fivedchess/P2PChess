@@ -4,7 +4,8 @@ project(ChessNetworking)
 
 set(CMAKE_CXX_STANDART 20)
 
-find_package(Boost 1.81.0 REQUIRED)
+#find_package(Boost 1.81.0 REQUIRED)
+FIND_PACKAGE(Boost 1.83 COMPONENTS program_options REQUIRED)
 file(GLOB SOURCES src/* src/*/* src/*/*/*)
 add_library(${PROJECT_NAME} ${SOURCES})
 find_package(msgpack-cxx REQUIRED)
@@ -22,4 +23,5 @@ target_link_libraries(${PROJECT_NAME}
     ${Boost_LIBRARIES}
     ${MSGPACK_LIBRARIES}
 )
+TARGET_LINK_LIBRARIES(ChessNetworking LINK_PUBLIC ${Boost_LIBRARIES} )
 target_compile_options(ChessNetworking PRIVATE -g -O3)
