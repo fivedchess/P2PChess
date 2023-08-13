@@ -5,8 +5,8 @@ namespace Chess{
   class unRouter : public Connectable{
     public:
       Address address;
-      std::string* getAddress() override;
-      short* getPort() override;
+      const std::string* getAddress() const override;
+      const short* getPort() const override;
       unRouter(Address address);
       bool operator==(const unRouter& another) const;
   };

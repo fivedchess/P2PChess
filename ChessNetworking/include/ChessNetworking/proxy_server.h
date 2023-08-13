@@ -7,8 +7,8 @@ namespace Chess {
       Address address;
     public:
       boost::asio::ip::tcp::endpoint endpoint;
-      std::string* getAddress() override;
-      short* getPort() override;
+      const std::string* getAddress() const override;
+      const short* getPort() const override;
       ProxyServer(Address address);
   };
 };

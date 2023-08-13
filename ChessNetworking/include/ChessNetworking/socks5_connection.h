@@ -1,12 +1,13 @@
 #pragma once
-#include <ChessNetworking/connectable.h>
+#include <ChessNetworking/unrouter.h>
+#include <ChessNetworking/unrouter_hash.h>
 #include <ChessNetworking/proxy_server.h>
 namespace Chess {
   class Package;
   class Socks5Connection : public boost::enable_shared_from_this<Socks5Connection> {
     protected:
       ProxyServer& proxy;
-      Connectable* router;
+      std::unordered_set<unRouter, unRouter_hash>::iterator router;
       //Boost::asio socket;
       boost::asio::ip::tcp::socket socket;
       //Socks5 Authorization request;

@@ -1,10 +1,10 @@
 #include <ChessNetworking/unrouter.h>
 #include <ChessNetworking/address.h>
 namespace Chess {
-  std::string* unRouter::getAddress(){
+  const std::string* unRouter::getAddress() const{
     return &this->address.ip;
   }
-  short* unRouter::getPort(){
+  const short* unRouter::getPort() const{
     return &this->address.port;
   }
   unRouter::unRouter(Address address) : address(address){}

@@ -18,15 +18,13 @@ namespace Chess {
             this->socket.close();
             return;
           }
-          Address from_addr = Address(msgpack["From"]);
-          unRouter from = unRouter(from_addr);
           std::cout << "From: " <<  msgpack["From"] << std::endl;
 
 
 
           boost::shared_ptr<std::map<std::string, std::string>> data = boost::make_shared<std::map<std::string, std::string>>();
           if (msgpack["Type"] == "Bootstrap") {
-            Package package(router, router->connectTo(boost::move(from)), data);
+            Package package(router, router->connectTo(unRouter(Address(msgpack["From"]))), data);
             router->send(package);
           }
         } catch (msgpack::v1::type_error) {

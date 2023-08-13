@@ -27,8 +27,9 @@ namespace Chess{
     server_endpoint(),
     acceptor(io_context, server_endpoint),
     io_context(io_context),
-    proxy(Address("127.0.0.1:4447")),
-    reseed(Address("127.0.0.1:1984")) {
+    proxy(Address("127.0.0.1:4447"))
+    //reseed(Address("127.0.0.1:1984"))
+  {
       this->m_desc.add_options()
       ("help,h", "Produce help message")
       ("address,a",  boost::program_options::value<std::string>()->composing(), "Set the b32")
@@ -56,8 +57,8 @@ namespace Chess{
       std::cout << "Proxy: " << *this->proxy.getAddress() << ":" << *this->proxy.getPort() << std::endl;
     }
     if (m_vm.count("reseed")){
-      this->reseed = unRouter(Address(m_vm["reseed"].as<std::string>()));
-      std::cout << "Reseed: " << *this->reseed.getAddress() << ":" << *this->reseed.getPort() << std::endl;
+      reseed = this->connectTo(unRouter(Address(m_vm["reseed"].as<std::string>())));
+      std::cout << "Reseed: " << *this->reseed->getAddress() << ":" << *this->reseed->getPort() << std::endl;
     }
     if (m_vm.count("port")){
       this->address.port = m_vm["port"].as<short>();
@@ -70,13 +71,13 @@ namespace Chess{
     do_accept();
     boost::shared_ptr<std::map<std::string, std::string>> Data = boost::make_shared<std::map<std::string, std::string>>();
     (*Data)["Type"] = "Bootstrap";
-    Package package(this, &this->reseed, Data);
+    Package package(this, this->reseed, Data);
     boost::make_shared<Socks5Connection>(boost::move(boost::asio::ip::tcp::socket(io_context)), proxy, package)->run();
   }
-  std::string* Router::getAddress() {
+  const std::string* Router::getAddress() const {
     return &this->address.ip;
   }
-  short* Router::getPort() {
+  const short* Router::getPort() const {
     return &this->address.port;
   }
 };

@@ -11,7 +11,7 @@ namespace Chess {
       protected:
         Address address;
         ProxyServer proxy;
-        unRouter reseed;
+        std::unordered_set<unRouter, unRouter_hash>::iterator reseed;
         boost::asio::io_context& io_context;
         boost::asio::ip::tcp::endpoint server_endpoint;
         boost::asio::ip::tcp::acceptor acceptor;
@@ -22,8 +22,8 @@ namespace Chess {
       public:
         void send(Package& package);
         static const std::string version;
-        std::string* getAddress() override;
-        short* getPort() override;
+        const std::string* getAddress() const override;
+        const short* getPort() const override;
         void run();
         std::unordered_set<unRouter, unRouter_hash>::iterator connectTo(unRouter router);
         std::unordered_set<unRouter, unRouter_hash>::iterator find(unRouter* router);
