@@ -39,7 +39,7 @@ namespace Chess{
       boost::program_options::store(boost::program_options::parse_command_line(argc, argv, m_desc), m_vm);
       boost::program_options::notify(m_vm);
     }
-  const std::string Router::version = "0.001";
+  const int Router::version = 10000;
   void Router::run(){
     if (m_vm.count("help")){
       std::cout << this->m_desc << std::endl;
@@ -69,8 +69,10 @@ namespace Chess{
 
 
     do_accept();
-    boost::shared_ptr<std::map<std::string, std::string>> Data = boost::make_shared<std::map<std::string, std::string>>();
-    (*Data)["Type"] = "Bootstrap";
+    boost::shared_ptr<Request> Data = boost::make_shared<Request>();
+    Data->set_type(Type::Bootstrap);
+    Data->set_version(Router::version);
+
     Package package(this, this->reseed, Data);
     boost::make_shared<Socks5Connection>(boost::move(boost::asio::ip::tcp::socket(io_context)), proxy, package)->run();
   }

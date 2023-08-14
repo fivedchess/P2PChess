@@ -2,6 +2,7 @@
 #include <ChessNetworking/unrouter.h>
 #include <ChessNetworking/router.h>
 #include <ChessNetworking/package.h>
+#include <ChessSerialisation/request.pb.h>
 namespace Chess {
   ServerConnection::ServerConnection(boost::asio::ip::tcp::socket socket, Router* router) : socket(boost::move(socket)), router(router) {
   }
@@ -10,24 +11,26 @@ namespace Chess {
     this->socket.async_read_some(boost::asio::buffer(data), [this, self](const boost::system::error_code& error, std::size_t length){
       if (!error) {
         try {
-          auto tmp = msgpack::unpack(reinterpret_cast<char*>(data), length);
-          std::map<std::string, std::string> msgpack;
-          tmp.get().convert(msgpack);
-          if (msgpack["Ver"] != router->version) {
-          std::cout << "Bad Version" << std::endl;
+          Request recieved;
+          recieved.ParseFromArray(data, length);
+          if (recieved.version() != Router::version) {
+            std::cout << recieved.version() << std::endl;
+            std::cout << "Bad Version" << std::endl;
             this->socket.close();
             return;
           }
-          std::cout << "From: " <<  msgpack["From"] << std::endl;
+          SerialisedConnectable from_router = recieved.from();
+          std::cout << "From: " << from_router.address() << ":" << std::to_string(from_router.port()) << std::endl;
 
-
-
-          boost::shared_ptr<std::map<std::string, std::string>> data = boost::make_shared<std::map<std::string, std::string>>();
-          if (msgpack["Type"] == "Bootstrap") {
-            Package package(router, router->connectTo(unRouter(Address(msgpack["From"]))), data);
+          boost::shared_ptr<Request> request = boost::make_shared<Request>();
+          request->set_type(Type::Add);
+          request->set_version(Router::version);
+          if (recieved.type() == Type::Bootstrap) {
+            Package package(router, router->connectTo(unRouter(Address(from_router.address(), from_router.port()))), request);
             router->send(package);
           }
-        } catch (msgpack::v1::type_error) {
+
+        } catch (std::exception) {
           this->socket.close();
           return;
         }

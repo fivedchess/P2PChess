@@ -63,11 +63,17 @@ namespace Chess {
   }
   void Socks5Connection::connect_handler() {
     auto self(shared_from_this());
-    (*this->data)["From"] = *this->from->getAddress() + ":" + std::to_string(*this->from->getPort());
-    (*this->data)["To"] = *this->router->getAddress() + ":" + std::to_string(*this->router->getPort());
-    (*this->data)["Ver"] = Router::version;
-    msgpack::pack(msgpack, (*this->data));
-    boost::asio::async_write(this->socket, boost::asio::buffer(msgpack.str()), boost::asio::transfer_all(), [this, self](const boost::system::error_code& error, std::size_t){});
+    SerialisedConnectable* from_router = new SerialisedConnectable;
+    from_router->set_address(*this->from->getAddress());
+    from_router->set_port(*this->from->getPort());
+    SerialisedConnectable* to_router = new SerialisedConnectable;
+    to_router->set_address(*this->router->getAddress());
+    to_router->set_port(*this->router->getPort());
+    this->data->set_allocated_from(from_router);
+    this->data->set_allocated_to(to_router);
+    boost::asio::async_write(this->socket, boost::asio::buffer(this->data->SerializeAsString()), boost::asio::transfer_all(), [this, self](const boost::system::error_code& error, std::size_t){
+
+    });
   }
   void Socks5Connection::run() {
     this->proxy_connect();

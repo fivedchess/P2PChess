@@ -21,7 +21,7 @@ namespace Chess {
         std::unordered_set<unRouter, unRouter_hash> connections;
       public:
         void send(Package& package);
-        static const std::string version;
+        static const int version;
         const std::string* getAddress() const override;
         const short* getPort() const override;
         void run();

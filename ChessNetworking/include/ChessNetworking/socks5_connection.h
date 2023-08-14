@@ -2,6 +2,7 @@
 #include <ChessNetworking/unrouter.h>
 #include <ChessNetworking/unrouter_hash.h>
 #include <ChessNetworking/proxy_server.h>
+#include <ChessSerialisation/request.pb.h>
 namespace Chess {
   class Package;
   class Socks5Connection : public boost::enable_shared_from_this<Socks5Connection> {
@@ -29,7 +30,7 @@ namespace Chess {
       //Serialised data;
       std::stringstream msgpack;
       //Not serialised data;
-      boost::shared_ptr<std::map<std::string, std::string>> data;
+      boost::shared_ptr<Request> data;
       //From Router;
       Connectable* from;
 

@@ -1,15 +1,14 @@
 #pragma once
 #include <ChessNetworking/unrouter.h>
 #include <ChessNetworking/unrouter_hash.h>
+#include <ChessSerialisation/request.pb.h>
 namespace Chess {
   class Connectable;
   class Package{
     public:
       Connectable* from;
       std::unordered_set<unRouter, unRouter_hash>::iterator to;
-      boost::shared_ptr<std::map<std::string, std::string>> data;
-      //Package(Connectable* from, Connectable* to, boost::shared_ptr<std::map<std::string, std::string>> data);
-      Package(Connectable* from, std::unordered_set<unRouter, unRouter_hash>::iterator to, boost::shared_ptr<std::map<std::string, std::string>> data);
-      //Package(Connectable* from, const Connectable* to, boost::shared_ptr<std::map<std::string, std::string>> data);
+      boost::shared_ptr<Request> data;
+      Package(Connectable* from, std::unordered_set<unRouter, unRouter_hash>::iterator to, boost::shared_ptr<Request> data);
   };
 }
