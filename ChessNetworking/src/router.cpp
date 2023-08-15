@@ -3,6 +3,7 @@
 #include <ChessNetworking/socks5_connection.h>
 #include <ChessNetworking/server_connection.h>
 #include <ChessNetworking/unrouter.h>
+#include <ChessNetworking/updator.h>
 namespace Chess{
   void Router::do_accept(){
     acceptor.async_accept(
@@ -13,23 +14,64 @@ namespace Chess{
           do_accept();
         });
   }
-  void Router::send(Package& package) {
-    boost::make_shared<Socks5Connection>(boost::move(boost::asio::ip::tcp::socket(io_context)), this->proxy, package)->run();
+  void Router::send(Package& package, std::function<void(Router*, bool)> callback) {
+    try {
+      boost::asio::steady_timer timer(this->io_context);
+      boost::make_shared<Socks5Connection>(boost::asio::ip::tcp::socket(io_context), this->proxy, package, std::move(timer), std::move(callback))->run();
+    } catch (std::exception) {throw;}
   }
   std::unordered_set<unRouter, unRouter_hash>::iterator Router::connectTo(unRouter router) {
-    return this->connections.emplace(boost::move(router)).first;
+    return this->connections.emplace(std::move(router)).first;
   }
-  std::unordered_set<unRouter, unRouter_hash>::iterator Router::find(unRouter* router) {
+  std::unordered_set<unRouter, unRouter_hash>::iterator Router::connectTo(const std::shared_ptr<unRouter>& router) {
+    return this->connections.emplace(*router).first;
+  }
+  std::unordered_set<unRouter, unRouter_hash>::iterator Router::find(const std::shared_ptr<unRouter>& router) {
     return this->connections.find(*router);
   }
+  std::unordered_set<unRouter, unRouter_hash>::iterator Router::find(const unRouter& router) {
+    return this->connections.find(router);
+  }
+  std::unordered_set<unRouter, unRouter_hash>::iterator Router::find(const unRouter* router) {
+    return this->connections.find(*router);
+  }
+  const std::unordered_set<unRouter, unRouter_hash>* Router::getConnections() {
+    return &this->connections;
+  }
+  void Router::disConnect(const std::shared_ptr<unRouter>& router) {
+    this->connections.erase(*router);
+  }
+  void Router::disConnect(const unRouter& router) {
+    this->connections.erase(router);
+  }
+  void Router::disConnect(std::unordered_set<unRouter, unRouter_hash>::iterator router) {
+    this->connections.erase(router);
+  }
+  bool Router::inConnections(const std::shared_ptr<unRouter>& router) {
+    if (this->find(router) == this->connections.end()) {
+      return false;
+    }
+    return true;
+  }
+  bool Router::inConnections(const unRouter* router) {
+    if (this->find(router) == this->connections.end()) {
+      return false;
+    }
+    return true;
+  }
+  bool Router::inConnections(std::unordered_set<unRouter, unRouter_hash>::iterator router) {
+    if (router == this->connections.end()) {
+      return false;
+    }
+    return true;
+  }
+
   Router::Router(boost::asio::io_context& io_context, int argc, const char** argv) :
     address("127.0.0.1:1984"),
     server_endpoint(),
     acceptor(io_context, server_endpoint),
     io_context(io_context),
-    proxy(Address("127.0.0.1:4447"))
-    //reseed(Address("127.0.0.1:1984"))
-  {
+    proxy(Address("127.0.0.1:4447")) {
       this->m_desc.add_options()
       ("help,h", "Produce help message")
       ("address,a",  boost::program_options::value<std::string>()->composing(), "Set the b32")
@@ -74,7 +116,11 @@ namespace Chess{
     Data->set_version(Router::version);
 
     Package package(this, this->reseed, Data);
-    boost::make_shared<Socks5Connection>(boost::move(boost::asio::ip::tcp::socket(io_context)), proxy, package)->run();
+    this->send(package, [](Router*, bool){});
+    auto timer = std::make_shared<boost::asio::steady_timer>(io_context, std::chrono::minutes(5));
+    timer->async_wait([this, timer](const boost::system::error_code&){
+      std::make_shared<Updator>(this->io_context, this)->run();
+    });
   }
   const std::string* Router::getAddress() const {
     return &this->address.ip;

@@ -4,7 +4,8 @@
 #include <ChessNetworking/package.h>
 #include <ChessNetworking/router.h>
 namespace Chess {
-  Socks5Connection::Socks5Connection(boost::asio::ip::tcp::socket socket, ProxyServer& proxy, Package& package) : socket(std::move(socket)), proxy(proxy), router(package.to), data(package.data), from(package.from) {
+  Socks5Connection::Socks5Connection(boost::asio::ip::tcp::socket socket, ProxyServer& proxy, Package& package, boost::asio::steady_timer timer, const std::function<void(Router*, bool)> callback) : socket(std::move(socket)), proxy(proxy), router(package.to), data(package.data), from(package.from), timer(std::move(timer)), callback(std::move(callback)) {
+
   }
   void Socks5Connection::proxy_connect() {
     auto self(shared_from_this());
@@ -45,6 +46,11 @@ namespace Chess {
     this->connect_request.insert(this->connect_request.end(), router->getAddress()->begin(), router->getAddress()->end());
     this->connect_request.push_back(static_cast<uint8_t>(networkPort >> 8) & 0xFF);
     this->connect_request.push_back(static_cast<uint8_t>(networkPort & 0xFF));
+    this->timer.expires_from_now(std::chrono::seconds(60));
+    this->timer.async_wait([self, this](const boost::system::error_code& error) {
+      this->socket.cancel();
+      this->callback(this->from, this->timer_status);
+    });
     boost::asio::async_write(this->socket, boost::asio::buffer(this->connect_request), boost::asio::transfer_all(), [this, self](const boost::system::error_code& error, std::size_t){
       if (!error) {
         boost::asio::async_read(this->socket, boost::asio::buffer(this->connect_reply), boost::asio::transfer_all(), [this, self](const boost::system::error_code& error, std::size_t){
@@ -52,12 +58,14 @@ namespace Chess {
             this->connect_handler();
           } else {
             std::cout << "connect_reply[1] != 0x00" << std::endl;
-            this->socket.close();
+            this->timer_status = true;
+            this->timer.cancel_one();
           }
         });
       } else {
         std::cout << error.message() << std::endl;
-        this->socket.close();
+        this->timer_status = true;
+        this->timer.cancel_one();
       }
     });
   }
@@ -72,7 +80,20 @@ namespace Chess {
     this->data->set_allocated_from(from_router);
     this->data->set_allocated_to(to_router);
     boost::asio::async_write(this->socket, boost::asio::buffer(this->data->SerializeAsString()), boost::asio::transfer_all(), [this, self](const boost::system::error_code& error, std::size_t){
-
+      if (!error) {
+        boost::asio::async_read(this->socket, boost::asio::dynamic_buffer(this->ok), boost::asio::transfer_all(), [this, self](const boost::system::error_code& error, std::size_t size){
+          Request reply;
+          this->ok.erase(this->ok.begin(), this->ok.begin() + 8);
+          reply.ParseFromArray(this->ok.data(), size-8);
+          if (reply.version() == this->from->version && reply.type() == Type::Success) {
+            this->timer_status = false;
+            this->timer.cancel_one();
+          } else {
+            this->timer_status = true;
+            this->timer.cancel_one();
+          }
+        });
+      }
     });
   }
   void Socks5Connection::run() {

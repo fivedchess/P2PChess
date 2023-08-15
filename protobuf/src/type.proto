@@ -1,6 +1,6 @@
 enum Type {
   Bootstrap = 0;
   Add = 1;
-
+  Success = 2;
 }
 

@@ -2,10 +2,12 @@
 #include <boost/asio/write.hpp>
 #include <boost/asio/read.hpp>
 #include <boost/asio/connect.hpp>
+#include <boost/asio/deadline_timer.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/program_options.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <google/protobuf/any.h>
 #include <iostream>
+#include <memory>
 #include <unordered_set>

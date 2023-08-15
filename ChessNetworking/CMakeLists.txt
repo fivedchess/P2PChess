@@ -25,4 +25,6 @@ target_link_libraries(${PROJECT_NAME}
     request-proto
 )
 TARGET_LINK_LIBRARIES(ChessNetworking LINK_PUBLIC ${Boost_LIBRARIES} )
-target_compile_options(ChessNetworking PRIVATE -g -O3)
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
+target_compile_options(ChessNetworking PRIVATE -g -O3 -fno-omit-frame-pointer)

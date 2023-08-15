@@ -16,4 +16,6 @@ target_link_libraries(${PROJECT_NAME}
     ChessNetworking
     Boost::program_options
 )
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
 target_compile_options(ChessRouter PRIVATE -g -O3)

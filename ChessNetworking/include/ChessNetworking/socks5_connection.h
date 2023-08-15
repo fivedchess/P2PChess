@@ -5,6 +5,7 @@
 #include <ChessSerialisation/request.pb.h>
 namespace Chess {
   class Package;
+  class Router;
   class Socks5Connection : public boost::enable_shared_from_this<Socks5Connection> {
     protected:
       ProxyServer& proxy;
@@ -32,10 +33,19 @@ namespace Chess {
       //Not serialised data;
       boost::shared_ptr<Request> data;
       //From Router;
-      Connectable* from;
-
+      Router* from;
+      //Deadline Timer
+      boost::asio::steady_timer timer;
+      //Callback
+      std::function<void(Router*, bool)> callback;
+      //Connection Reply
+      std::vector<unsigned char> ok;
+      //Timer status
+      // true = error
+      // false = success
+      bool timer_status;
     public:
-      Socks5Connection(boost::asio::ip::tcp::socket socket, ProxyServer& proxy, Package& package);
+      Socks5Connection(boost::asio::ip::tcp::socket socket, ProxyServer& proxy, Package& package, boost::asio::steady_timer timer, const std::function<void(Router*, bool)> callback);
       void run();
   };
 };

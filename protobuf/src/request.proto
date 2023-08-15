@@ -2,8 +2,8 @@ import "connectable.proto";
 import "type.proto";
 message Request {
   optional Type Type = 1;
-  repeated SerialisedConnectable Connections = 2;
+  optional int32 Version = 2;
   optional SerialisedConnectable From = 3;
   optional SerialisedConnectable To = 4;
-  optional int32 Version = 5;
+  repeated SerialisedConnectable Connections = 5;
 }
