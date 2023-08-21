@@ -18,11 +18,11 @@ namespace Chess {
   }
   void ServerConnection::do_read() {
     auto self(shared_from_this());
-    this->socket.async_read_some(boost::asio::buffer(data), [this, self](const boost::system::error_code& error, std::size_t length){
+    boost::asio::async_read(this->socket, boost::asio::dynamic_buffer(data), boost::asio::transfer_all(), [this, self](const boost::system::error_code& error, std::size_t length){
       if (!error) {
         try {
           Request recieved;
-          recieved.ParseFromArray(data, length);
+          recieved.ParseFromArray(data.data(), length);
           if (recieved.version() != Router::version) {
             std::cout << recieved.version() << std::endl;
             std::cout << "Bad Version" << std::endl;

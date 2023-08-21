@@ -6,7 +6,7 @@ namespace Chess {
   class ServerConnection : public boost::enable_shared_from_this<ServerConnection>{
     protected:
       boost::asio::ip::tcp::socket socket;
-      uint8_t data[8192];
+      std::vector<uint8_t> data;
       void do_read();
       Router* router;
       void add_routers(SerialisedConnectable& from_router, boost::shared_ptr<Request> request);
