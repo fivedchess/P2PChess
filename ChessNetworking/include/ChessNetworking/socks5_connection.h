@@ -1,51 +1,52 @@
 #pragma once
-#include <ChessNetworking/unrouter.h>
-#include <ChessNetworking/unrouter_hash.h>
+#include <ChessNetworking/package.h>
 #include <ChessNetworking/proxy_server.h>
 #include <ChessSerialisation/request.pb.h>
+#include <ChessNetworking/timer.h>
+#include <ChessNetworking/connector.h>
+#include <ChessNetworking/client.h>
 namespace Chess {
   class Package;
   class Router;
-  class Socks5Connection : public boost::enable_shared_from_this<Socks5Connection> {
+  class Socks5Connection : public std::enable_shared_from_this<Socks5Connection>, public Connector {
     protected:
       ProxyServer& proxy;
-      std::unordered_set<unRouter, unRouter_hash>::iterator router;
+      //Package
+      Package package_;
       //Boost::asio socket;
-      boost::asio::ip::tcp::socket socket;
+      boost::asio::ip::tcp::socket socket_;
       //Socks5 Authorization request;
-      uint8_t handshake_request[3] = {0x05, 0x01, 0x00};
+      std::array<std::byte, 3> handshake_request = {std::byte(0x05), std::byte(0x01), std::byte(0x00)};
       //Socks5 Server Response;
-      uint8_t handshake_reply[2];
+      std::array<std::byte, 2> handshake_reply;
       //Connect to server Request;
-      std::vector<uint8_t> connect_request = {0x05, 0x01, 0x00, 0x03};
+      std::array<std::byte, 257> connect_request = {std::byte(0x05), std::byte(0x01), std::byte(0x00), std::byte(0x03)};
       //Reply From Socks5 Server for Connect Request;
-      uint8_t connect_reply[2];
+      std::array<std::byte, 10> connect_reply;
       //Connect to Socks5 Server;
-      void proxy_connect();
+      void proxy_connect() noexcept;
       //Handshake Function;
-      void handshake();
+      void handshake() noexcept;
       //Connect to Router;
-      void connect();
+      void connect() noexcept;
       //Connect Handler;
-      virtual void connect_handler();
+      void connect_handler() noexcept;
       //Serialised data;
       std::stringstream msgpack;
-      //Not serialised data;
-      boost::shared_ptr<Request> data;
-      //From Router;
-      Router* from;
       //Deadline Timer
-      boost::asio::steady_timer timer;
-      //Callback
-      std::function<void(Router*, bool)> callback;
+      TimerContainer timer_;
       //Connection Reply
       std::vector<unsigned char> ok;
-      //Timer status
-      // true = error
-      // false = success
-      bool timer_status;
+      //Resolver
+      boost::asio::ip::tcp::resolver resolver;
+      //Main Client
+      Client client;
     public:
-      Socks5Connection(boost::asio::ip::tcp::socket socket, ProxyServer& proxy, Package& package, boost::asio::steady_timer timer, const std::function<void(Router*, bool)> callback);
-      void run();
+      Socks5Connection(boost::asio::ip::tcp::socket socket, ProxyServer& proxy, Package package, TimerContainer timer, boost::asio::ip::tcp::resolver resolver);
+      void run() noexcept;
+      TimerContainer& timer() noexcept;
+      Package& package() noexcept;
+      ~Socks5Connection() noexcept;
+      boost::asio::ip::tcp::socket& socket() noexcept;
   };
 };

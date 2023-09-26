@@ -3,5 +3,12 @@
 #include <ChessSerialisation/request.pb.h>
 #include <ChessNetworking/router.h>
 namespace Chess {
-  Package::Package(Router* from, std::unordered_set<unRouter, unRouter_hash>::iterator to, boost::shared_ptr<Request> data) : from(from), to(boost::move(to)), data(data) {}
+  Package::Package(const Connectable& from, const Connectable& to, Request data) :
+      from(from),
+      to(to),
+      data(std::move(data)) {}
+  Package::Package(Package&& package) :
+      from(package.from),
+      to(package.to),
+      data(std::move(package.data)) {};
 };

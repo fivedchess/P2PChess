@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.26.4)
+cmake_minimum_required(VERSION 3.26.5)
 set(CMAKE_GENERATOR "Ninja")
 project(ChessNetworking)
 
 set(CMAKE_CXX_STANDART 20)
 
-FIND_PACKAGE(Boost 1.83.0 COMPONENTS program_options REQUIRED)
+FIND_PACKAGE(Boost 1.82.0 COMPONENTS program_options REQUIRED)
 file(GLOB SOURCES src/* src/*/* src/*/*/*)
 add_library(${PROJECT_NAME} ${SOURCES})
 target_precompile_headers(ChessNetworking PUBLIC include/ChessNetworking/stdafx.h)
@@ -24,7 +24,10 @@ target_link_libraries(${PROJECT_NAME}
     type-proto
     request-proto
 )
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+                      UNITY_BUILD_MODE BATCH
+                      UNITY_BUILD_BATCH_SIZE 200
+                      )
 TARGET_LINK_LIBRARIES(ChessNetworking LINK_PUBLIC ${Boost_LIBRARIES} )
-add_compile_options(-fsanitize=address)
-add_link_options(-fsanitize=address)
-target_compile_options(ChessNetworking PRIVATE -g -O3 -fno-omit-frame-pointer)
+target_compile_options(ChessNetworking PRIVATE -O3 -fno-omit-frame-pointer)

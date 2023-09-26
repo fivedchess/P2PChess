@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.26.4)
+cmake_minimum_required(VERSION 3.26.5)
 project(ChessRouter)
 
 set(CMAKE_CXX_STANDART 20)
-find_package(Boost 1.83.0 COMPONENTS program_options REQUIRED)
+find_package(Boost 1.82.0 COMPONENTS program_options REQUIRED)
 
 
 add_executable(${PROJECT_NAME} router.cpp)

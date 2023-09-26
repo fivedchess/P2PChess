@@ -6,9 +6,9 @@ namespace Chess {
   class Updator : public std::enable_shared_from_this<Updator> {
     protected:
       boost::asio::io_context& io_context;
-      Router* router;
+      Router& router;
     public:
       void run();
-      Updator(boost::asio::io_context& io_context, Router* router);
+      Updator(boost::asio::io_context& io_context, Router& router);
   };
 };
